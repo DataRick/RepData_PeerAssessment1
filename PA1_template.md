@@ -1,11 +1,6 @@
----
-title: "Reproducible Research Assignment 1"
-author: "Ricardo A."
-date: "Saturday, November 15, 2014"
-output:
-  html_document:
-    keep_md: yes
----
+# Reproducible Research Assignment 1
+Ricardo A.  
+Saturday, November 15, 2014  
 
 ###INTRODUCTION
 
@@ -58,13 +53,15 @@ Show any code that is needed to
 
 1. Load the data (i.e. read.csv() )
 
-```{r, echo=TRUE}
+
+```r
 data1<-read.csv("activity.csv")
 ```
 
 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r, echo=TRUE}
+
+```r
 data2<-data1[complete.cases(data1),]
 ```
 
@@ -76,38 +73,76 @@ For this part of the assignment, you can ignore the missing values in the datase
 
 1. Make a histogram of the total number of steps taken each day
 
-```{r, echo=TRUE}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 grp <- group_by(data2, date)
 histo<-summarise(grp, total=sum(steps,na.rm=TRUE))
 hist(histo$total,main="Histogram of daily steps",xlab="Number of steps",ylim=c(0,35))
 ```
 
+![plot of chunk unnamed-chunk-3](./PA1_template_files/figure-html/unnamed-chunk-3.png) 
+
 We use functions from library Dplyr for grouping and summarizing data. The limits of the Y axis are adjusted so we can compare plots later.
 
 2. Calculate and report the **mean** and **median** total number of steps taken per day
 
-```{r,echo=TRUE}
+
+```r
 summarise(histo, mean=mean(total),median=median(total))
+```
+
+```
+## Source: local data frame [1 x 2]
+## 
+##    mean median
+## 1 10766  10765
 ```
 
 ####What is the average daily activity pattern?
 
 1. Make a time series plot (i.e. type = "l" ) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r,echo=TRUE}
+
+```r
 group2 <- group_by(data2, interval)
 tseries1 <- summarise(group2, average=mean(steps))
 plot(tseries1,type="l",xlab="5 minute interval",ylab="Average number of steps",xaxt="n")
 axis(1,c(0,400,800,1200,1600,2000,2400) ,labels=c("00:00","04:00","08:00","12:00","16:00","20:00","24:00"))
 ```
 
+![plot of chunk unnamed-chunk-5](./PA1_template_files/figure-html/unnamed-chunk-5.png) 
+
 Again, we use Dplyr functions to summarize data. The tick marks and labels of the X axis of the plot are moodified for a cleaner plot.
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r,echo=TRUE}
+
+```r
 tseries1[which(tseries1$average==max(tseries1$average)),]
+```
+
+```
+## Source: local data frame [1 x 2]
+## 
+##     interval average
+## 104      835   206.2
 ```
 
 ####Imputing missing values
@@ -116,8 +151,13 @@ Note that there are a number of days/intervals where there are missing values (c
 
 1. Calculate and report the total number of missing values in the dataset (i.e. the total number ofrows with NA s)
 
-```{r,echo=TRUE}
+
+```r
 sum(!complete.cases(data1))
+```
+
+```
+## [1] 2304
 ```
 
 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
@@ -127,7 +167,8 @@ sum(!complete.cases(data1))
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r,echo=TRUE,warning=FALSE}
+
+```r
 data3 <- data1
 df1<-data.frame(as.integer(seq(0,2355,5)),rep.int(0, 472))
 names(df1) <- c("interval","steps")
@@ -140,12 +181,25 @@ We create a new "empty" data frame with "interval" and "steps" columns. Then we 
 
 4. Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r,echo=TRUE}
+
+```r
 library(dplyr)
 grp3 <- group_by(data3, date)
 histo2<-summarise(grp3, total=sum(steps,na.rm=TRUE))
 hist(histo2$total,main="Histogram of daily steps",xlab="Number of steps",ylim=c(0,35))
+```
+
+![plot of chunk unnamed-chunk-9](./PA1_template_files/figure-html/unnamed-chunk-9.png) 
+
+```r
 summarise(histo2, mean=mean(total),median=median(total))
+```
+
+```
+## Source: local data frame [1 x 2]
+## 
+##    mean median
+## 1 10766  10766
 ```
 
 We use again Dplyr to summarize data. The Y axis limits of the plot is set to (0,35), same as the first plot, so we can compare at the same scale. The mean is the same as the first dataset but the median is impacted slightly. The histogram shows that there are more days with total number of steps in the range 10,000-15,000.
@@ -156,7 +210,8 @@ For this part the weekdays() function may be of some help here. Use the dataset 
 
 1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r,echo=TRUE}
+
+```r
 data3<-mutate(data3,day=ifelse(as.POSIXlt(data3$date)$wday==0 | as.POSIXlt(data3$date)$wday==6 ,"weekend","weekday"))
 data3$day<-factor(data3$day)
 ```
@@ -165,12 +220,15 @@ We test for saturdays (0) and sundays (6) to create a new column in the dataset 
 
 2. Make a panel plot containing a time series plot (i.e. type = "l" ) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days
 
-```{r,echo=TRUE}
+
+```r
 library(ggplot2)
 group3 <- group_by(data3, interval,day)
 tseries2 <- summarise(group3, average=mean(steps))
 p <- ggplot(tseries2, aes(interval, average)) + geom_line() + ylab("Number of steps")
 p + facet_grid(day ~ .)
 ```
+
+![plot of chunk unnamed-chunk-11](./PA1_template_files/figure-html/unnamed-chunk-11.png) 
 
 We use the ggplot2 library to quickly create a combined plot. The plots show that the subject of this experiment gets up later on weekends. Also on weekdays there are more steps recorded in the morning hours compared to the weekends. Bed time is earlier on weekdays than weekend.
